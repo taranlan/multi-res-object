@@ -83,7 +83,7 @@ def get_symbol_train(network, num_classes, from_layers, num_filters, strides, pa
     layers = multi_layer_feature(body, from_layers, num_filters, strides, pads,
         min_filter=min_filter)
 
-    loc_preds, cls_preds, anchor_boxes = multibox_layer(layers, \
+    loc_preds, cls_preds, anchor_boxes = multibox_layer(layers, num_filters, \
         num_classes, sizes=sizes, ratios=ratios, normalization=normalizations, \
         num_channels=num_filters, clip=False, interm_layer=0, steps=steps)
 

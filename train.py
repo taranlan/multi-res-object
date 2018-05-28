@@ -34,9 +34,9 @@ def parse_args():
                         default="", type=str)
     #parser.add_argument('--network', dest='network', type=str, default='vgg16_reduced',
     #                    help='which network to use')
-    parser.add_argument('--network', dest='network', type=str, default='resnet18',
+    parser.add_argument('--network', dest='network', type=str, default='resnet18-multires',
                         help='which network to use')
-    parser.add_argument('--batch-size', dest='batch_size', type=int, default=32,
+    parser.add_argument('--batch-size', dest='batch_size', type=int, default=2, # 32
                         help='training batch size')
     parser.add_argument('--resume', dest='resume', type=int, default=-1,
                         help='resume training from epoch n')

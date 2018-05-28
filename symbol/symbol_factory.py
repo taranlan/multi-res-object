@@ -97,6 +97,19 @@ def get_config(network, data_shape, **kwargs):
         normalizations = -1
         steps = []
         return locals()
+    elif network == 'resnet18-multires':
+	num_layers = 18
+        image_shape = '3,224,224'  # resnet require it as shape check
+        network = 'resnet'
+        from_layers = ['_plus5', '_plus7']
+        num_filters = [256, 256]
+        strides = [-1, -1]
+        pads = [-1, -1]
+        sizes = [[.1, .3, .5, .7, .9]]
+        ratios = [[1,2,.5]]
+        normalizations = -1
+        steps = []
+        return locals()
     elif network == 'resnet101':
         num_layers = 101
         image_shape = '3,224,224'

@@ -17,6 +17,7 @@
 
 import mxnet as mx
 import numpy as np
+import multi_res_fusion as multi_res 
 
 def conv_act_layer(from_layer, name, num_filter, kernel=(1,1), pad=(0,0), \
     stride=(1,1), act_type="relu", use_batchnorm=False):
@@ -150,7 +151,7 @@ def multi_layer_feature(body, from_layers, num_filters, strides, pads, min_filte
             layers.append(conv_3x3)
     return layers
 
-def multibox_layer(from_layers, num_classes, sizes=[.2, .95],
+def multibox_layer(from_layers, num_filters, num_classes, sizes=[.2, .95],
                     ratios=[1], normalization=-1, num_channels=[],
                     clip=False, interm_layer=0, steps=[]):
     """
@@ -196,9 +197,10 @@ def multibox_layer(from_layers, num_classes, sizes=[.2, .95],
     assert len(ratios) > 0, "aspect ratios must not be empty list"
     if not isinstance(ratios[0], list):
         # provided only one ratio list, broadcast to all from_layers
-        ratios = [ratios] * len(from_layers)
-    assert len(ratios) == len(from_layers), \
-        "ratios and from_layers must have same length"
+        ratios = [ratios] 
+        #ratios = [ratios] * len(from_layers)
+    #assert len(ratios) == len(from_layers), \
+    #    "ratios and from_layers must have same length"
 
     assert len(sizes) > 0, "sizes must not be empty list"
     if len(sizes) == 2 and not isinstance(sizes[0], list):
@@ -209,12 +211,12 @@ def multibox_layer(from_layers, num_classes, sizes=[.2, .95],
          min_sizes = [start_offset] + tmp.tolist()
          max_sizes = tmp.tolist() + [tmp[-1]+start_offset]
          sizes = zip(min_sizes, max_sizes)
-    assert len(sizes) == len(from_layers), \
-        "sizes and from_layers must have same length"
+    #assert len(sizes) == len(from_layers), \
+    #    "sizes and from_layers must have same length"
 
     if not isinstance(normalization, list):
         normalization = [normalization] * len(from_layers)
-    assert len(normalization) == len(from_layers)
+    #assert len(normalization) == len(from_layers)
 
     assert sum(x > 0 for x in normalization) <= len(num_channels), \
         "must provide number of channels for each normalized layer"
@@ -238,6 +240,11 @@ def multibox_layer(from_layers, num_classes, sizes=[.2, .95],
                 init=mx.init.Constant(normalization[k]),
                 attr={'__wd_mult__': '0.1'})
             from_layer = mx.symbol.broadcast_mul(lhs=scale, rhs=from_layer)
+            from_layers[k] = from_layer
+
+    from_layers = multi_res.construct_multi_res_layer(from_layers, num_filters)
+    for k, from_layer in enumerate(from_layers): # only 1 fused layer
+        from_name = from_layer.name
         if interm_layer > 0:
             from_layer = mx.symbol.Convolution(data=from_layer, kernel=(3,3), \
                 stride=(1,1), pad=(1,1), num_filter=interm_layer, \
