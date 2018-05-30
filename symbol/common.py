@@ -198,9 +198,9 @@ def multibox_layer(from_layers, num_filters, num_classes, sizes=[.2, .95],
     if not isinstance(ratios[0], list):
         # provided only one ratio list, broadcast to all from_layers
         ratios = [ratios] 
-        #ratios = [ratios] * len(from_layers)
-    #assert len(ratios) == len(from_layers), \
-    #    "ratios and from_layers must have same length"
+        ratios = [ratios] * len(from_layers)
+    assert len(ratios) == len(from_layers), \
+        "ratios and from_layers must have same length"
 
     assert len(sizes) > 0, "sizes must not be empty list"
     if len(sizes) == 2 and not isinstance(sizes[0], list):
@@ -211,12 +211,12 @@ def multibox_layer(from_layers, num_filters, num_classes, sizes=[.2, .95],
          min_sizes = [start_offset] + tmp.tolist()
          max_sizes = tmp.tolist() + [tmp[-1]+start_offset]
          sizes = zip(min_sizes, max_sizes)
-    #assert len(sizes) == len(from_layers), \
-    #    "sizes and from_layers must have same length"
+    assert len(sizes) == len(from_layers), \
+        "sizes and from_layers must have same length"
 
     if not isinstance(normalization, list):
         normalization = [normalization] * len(from_layers)
-    #assert len(normalization) == len(from_layers)
+    assert len(normalization) == len(from_layers)
 
     assert sum(x > 0 for x in normalization) <= len(num_channels), \
         "must provide number of channels for each normalized layer"
@@ -243,6 +243,7 @@ def multibox_layer(from_layers, num_filters, num_classes, sizes=[.2, .95],
             from_layers[k] = from_layer
 
     from_layers = multi_res.construct_multi_res_layer(from_layers, num_filters)
+
     for k, from_layer in enumerate(from_layers): # only 1 fused layer
         from_name = from_layer.name
         if interm_layer > 0:
@@ -265,6 +266,7 @@ def multibox_layer(from_layers, num_filters, num_classes, sizes=[.2, .95],
 
         # create location prediction layer
         num_loc_pred = num_anchors * 4
+        print "num_anchors:size:ratio ", num_anchors, size, ratio
         bias = mx.symbol.Variable(name="{}_loc_pred_conv_bias".format(from_name),
             init=mx.init.Constant(0.0), attr={'__lr_mult__': '2.0'})
         loc_pred = mx.symbol.Convolution(data=from_layer, bias=bias, kernel=(3,3), \

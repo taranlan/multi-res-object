@@ -32,11 +32,9 @@ def parse_args():
                         default=os.path.join(os.getcwd(), 'data', 'val.rec'), type=str)
     parser.add_argument('--val-list', dest='val_list', help='validation list to use',
                         default="", type=str)
-    #parser.add_argument('--network', dest='network', type=str, default='vgg16_reduced',
-    #                    help='which network to use')
     parser.add_argument('--network', dest='network', type=str, default='resnet18-multires',
                         help='which network to use')
-    parser.add_argument('--batch-size', dest='batch_size', type=int, default=2, # 32
+    parser.add_argument('--batch-size', dest='batch_size', type=int, default=32,
                         help='training batch size')
     parser.add_argument('--resume', dest='resume', type=int, default=-1,
                         help='resume training from epoch n')
@@ -44,10 +42,8 @@ def parse_args():
                         help='finetune from epoch n, rename the model before doing this')
     parser.add_argument('--pretrained', dest='pretrained', help='pretrained model prefix',
                         default=os.path.join(os.getcwd(), 'model', 'resnet-18'), type=str)
-                        #default=os.path.join(os.getcwd(), 'model', 'vgg16_reduced'), type=str)
     parser.add_argument('--epoch', dest='epoch', help='epoch of pretrained model',
                         default=0, type=int)
-                        #default=1, type=int)
     parser.add_argument('--prefix', dest='prefix', help='new model prefix',
                         default=os.path.join(os.getcwd(), 'model', 'ssd'), type=str)
     parser.add_argument('--gpus', dest='gpus', help='GPU devices to train with',
@@ -58,7 +54,7 @@ def parse_args():
                         default=240, type=int)
     parser.add_argument('--frequent', dest='frequent', help='frequency of logging',
                         default=20, type=int)
-    parser.add_argument('--data-shape', dest='data_shape', type=int, default=300,
+    parser.add_argument('--data-shape', dest='data_shape', type=int, default=512, # 300
                         help='set image shape')
     parser.add_argument('--label-width', dest='label_width', type=int, default=350,
                         help='force padding label width to sync across train and validation')
@@ -76,7 +72,7 @@ def parse_args():
                         help='blue mean value')
     parser.add_argument('--lr-steps', dest='lr_refactor_step', type=str, default='80, 160',
                         help='refactor learning rate at specified epochs')
-    parser.add_argument('--lr-factor', dest='lr_refactor_ratio', type=float, default=0.1,
+    parser.add_argument('--lr-factor', dest='lr_refactor_ratio', type=str, default=0.1,
                         help='ratio to refactor learning rate')
     parser.add_argument('--freeze', dest='freeze_pattern', type=str, default="^(conv1_|conv2_).*",
                         help='freeze layer pattern')
@@ -99,12 +95,12 @@ def parse_args():
                         help='non-maximum suppression threshold')
     parser.add_argument('--overlap', dest='overlap_thresh', type=float, default=0.5,
                         help='evaluation overlap threshold')
-    parser.add_argument('--force', dest='force_nms', action='store_true',
+    parser.add_argument('--force', dest='force_nms', type=bool, default=False,
                         help='force non-maximum suppression on different class')
-    parser.add_argument('--use-difficult', dest='use_difficult', action='store_true',
+    parser.add_argument('--use-difficult', dest='use_difficult', type=bool, default=False,
                         help='use difficult ground-truths in evaluation')
-    parser.add_argument('--no-voc07', dest='use_voc07_metric', action='store_false',
-                        help='dont use PASCAL VOC 07 11-point metric')
+    parser.add_argument('--voc07', dest='use_voc07_metric', type=bool, default=True,
+                        help='use PASCAL VOC 07 11-point metric')
     args = parser.parse_args()
     return args
 

@@ -21,34 +21,40 @@ def deconvolution_module(conv1, conv2, num_filter, upstrid = 2, level = 1, lr_mu
 def construct_multi_res_layer(from_layers, num_filters):
     multi_res_layers = []
     num_layers = len(from_layers)
+
+    concat_conv = deconvolution_module(from_layers[1],from_layers[2],512,2,1)
+    from_layers[1] = concat_conv
+
+    concat_conv = deconvolution_module(from_layers[0],concat_conv,256,2,2)
+    from_layers[0] = concat_conv
+
     # last convolutional layer for detection, lowest resolution
-    conv1 = mx.symbol.Convolution(data=from_layers[0], kernel=(3,3), pad=(1,1), num_filter=num_filters[0], name="conv1")
-    #bn1_1 = mx.symbol.BatchNorm(data=conv1_1, name="conv_bn1_1")
-    #relu1_1 = mx.symbol.Activation(data=bn1_1, act_type="relu", name="conv_bn_relu1_1")
-    #conv1_2 = mx.symbol.Convolution(
-    #    data=relu1_1, kernel=(3, 3), pad=(1, 1), num_filter=anti_filters[0], name="conv_bn_relu_conv1_2")
-    #bn1_2 = mx.symbol.BatchNorm(data=conv1_2, name="conv_bn_relu_conv_bn1_2")
+    #conv1 = mx.symbol.Convolution(data=anti_layers[0], kernel=(1,1), num_filter=num_filters[0], name="conv1")
     # fuse convolutional layers with multiple resolution
-    if num_layers >= 2: 
-        deconv2 = mx.symbol.Deconvolution(data=conv1, kernel=(2, 2), stride=(2, 2), num_filter=num_filters[1], name="de2")  # 2X
-        conv2 = mx.symbol.Convolution(data=from_layers[1], kernel=(3, 3), pad=(1, 1), num_filter=num_filters[1], name="conv2")
+    #print "number of layers: ", num_layers
+    #if num_layers >= 2: 
+    #    deconv2 = mx.symbol.Deconvolution(data=conv1, kernel=(2, 2), stride=(2, 2), num_filter=num_filters[0], name="de2")  # 2X
+        #conv2 = mx.symbol.Convolution(data=anti_layers[1], kernel=(3, 3), pad=(1, 1), num_filter=num_filters[0], name="conv2")
+    #    conv2 = mx.symbol.Convolution(data=anti_layers[1], kernel=(1, 1), num_filter=num_filters[0], name="conv2")
         #bn2 = mx.symbol.BatchNorm(data=conv2_1, name="de_conv_bn2}")
         #bn2_clip = mx.symbol.Crop(*[bn2, bn1_2])
-        deconv2_clip = mx.symbol.Crop(*[deconv2, conv2])
+    #    deconv2_clip = mx.symbol.Crop(*[deconv2, conv2])
         #score_fused = bn1_2 + bn2_clip
-        score_fused = deconv2_clip + conv2
-    if num_layers >= 3:
-        deconv3 = mx.symbol.Deconvolution(data=score_fused, kernel=(2, 2), stride=(2, 2), num_filter=num_filters[1], name="de3")  # 2X
-        conv3 = mx.symbol.Convolution(data=from_layers[2], kernel=(3, 3), pad=(1, 1), num_filter=num_filters[1], name="conv3")
-        deconv3_clip = mx.symbol.Crop(*[deconv3, conv3])
-        score_final = deconv3_clip + conv3
+    #    score_fused = deconv2_clip + conv2
+    #if num_layers >= 3:
+    #    deconv3 = mx.symbol.Deconvolution(data=score_fused, kernel=(2, 2), stride=(2, 2), num_filter=num_filters[0], name="de3")  # 2X
+        #conv3 = mx.symbol.Convolution(data=anti_layers[2], kernel=(3, 3), pad=(1, 1), num_filter=num_filters[0], name="conv3")
+    #    conv3 = mx.symbol.Convolution(data=anti_layers[2], kernel=(1, 1), num_filter=num_filters[0], name="conv3")
+    #    deconv3_clip = mx.symbol.Crop(*[deconv3, conv3])
+    #    score_final = deconv3_clip + conv3
 
-    if num_layers == 1: 
-        multi_res_layers.append(conv1)
-    elif num_layers == 2: 
-        multi_res_layers.append(score_fused)
-    elif num_layers == 3:
-        multi_res_layers.append(score_final)
+    #if num_layers == 1: 
+    #    multi_res_layers.append(conv1)
+    #elif num_layers == 2: 
+    #    multi_res_layers.append(score_fused)
+    #elif num_layers == 3:
+    #    multi_res_layers.append(score_final)
 
-    return multi_res_layers
+    #return multi_res_layers
+    return from_layers
 

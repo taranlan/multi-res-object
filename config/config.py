@@ -16,7 +16,6 @@
 # under the License.
 
 import os
-#from config.utils import DotDict, namedtuple_with_defaults, zip_namedtuple, config_as_dict
 from utils import DotDict, namedtuple_with_defaults, zip_namedtuple, config_as_dict
 
 RandCropper = namedtuple_with_defaults('RandCropper',
